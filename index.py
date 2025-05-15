@@ -1,6 +1,6 @@
 import pandas as pd
 from pptx import Presentation
-from utils import add_competitor_row
+import utils
 
 data_for_df = [
     {
@@ -176,6 +176,7 @@ prs = Presentation("Competitors.pptx")
 
 model_slide_layout = prs.slides[1].slide_layout
 current_slide = prs.slides[1]
+#duplicated_slide = utils.duplicate_slide(prs, 1)
 
 offset_per_riga_emu = 763200
 items_per_slide = 6
@@ -184,12 +185,13 @@ rows_written_on_current_slide = 0
 if not competitors_df.empty:
     for index, competitor_data_dict in enumerate(competitors_df.to_dict(orient='records')):
         if index > 0 and index % items_per_slide == 0:
-            current_slide = prs.slides.add_slide(model_slide_layout) #TODO: crare nuova funuzuione per slide con gli elementi
+            current_slide = prs.slides.add_slide(model_slide_layout)
             rows_written_on_current_slide = 0
+            utils.add_shapes(current_slide)
 
         current_y_offset = rows_written_on_current_slide * offset_per_riga_emu
         
-        add_competitor_row(current_slide, competitor_data_dict, y_offset=current_y_offset)
+        utils.add_competitor_row(current_slide, competitor_data_dict, y_offset=current_y_offset)
         
         rows_written_on_current_slide += 1
 else:
