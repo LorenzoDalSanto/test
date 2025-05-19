@@ -1,200 +1,175 @@
 import pandas as pd
 from pptx import Presentation
 import utils
+import os   # Per interagire con il file system (es. nomi file, percorsi)
+import glob # Per trovare file che corrispondono a un pattern (es. *.xlsx)
 
-data_for_df = [
-    {
-        "societa": "Beta Srl",
-        "sede": "Via Verdi, 123 - Milano",
-        "descrizione": "Opera nel settore food & beverage, con una lunga tradizione e prodotti di alta qualità riconosciuti sul mercato nazionale ed estero.",
-        "vdp": "12.000",
-        "ebitda": "3.000",
-        "ebitda_percent": "25%",
-        "n_dip": "60",
-        "pfn": "900",
-        "fcf": "250"
-    },
-    {
-        "societa": "Gamma Spa",
-        "sede": "Corso Italia, 45 - Roma",
-        "descrizione": "Leader nella logistica urbana e trasporti sostenibili, con focus sull'innovazione tecnologica.",
-        "vdp": "8.000",
-        "ebitda": "1.600",
-        "ebitda_percent": "20%",
-        "n_dip": "40",
-        "pfn": "1.200",
-        "fcf": "180"
-    },
-    {
-        "societa": "Delta Group International",
-        "sede": "Piazza Affari, 1 - Torino",
-        "descrizione": "Specializzati in consulenza finanziaria strategica e operazioni di M&A cross-border.",
-        "vdp": "15.000",
-        "ebitda": "4.500",
-        "ebitda_percent": "30%",
-        "n_dip": "75",
-        "pfn": "500",
-        "fcf": "400"
-    },
-    {
-        "societa": "Epsilon Solutions",
-        "sede": "Via Mazzini, 7 - Firenze",
-        "descrizione": "Fornitore di software gestionali per PMI, con soluzioni cloud innovative e scalabili.",
-        "vdp": "7.500",
-        "ebitda": "1.800",
-        "ebitda_percent": "24%",
-        "n_dip": "35",
-        "pfn": "600",
-        "fcf": "220"
-    },
-    {
-        "societa": "Zeta Corp",
-        "sede": "Largo Garibaldi, 22 - Napoli",
-        "descrizione": "Produzione e distribuzione di componenti elettronici per il settore automotive e industriale.",
-        "vdp": "20.000",
-        "ebitda": "5.000",
-        "ebitda_percent": "25%",
-        "n_dip": "100",
-        "pfn": "2.000",
-        "fcf": "500"
-    },
-    {
-        "societa": "Eta Systems",
-        "sede": "Viale Europa, 90 - Bologna",
-        "descrizione": "Integrazione di sistemi di automazione industriale e robotica avanzata per manifattura.",
-        "vdp": "9.000",
-        "ebitda": "2.250",
-        "ebitda_percent": "25%",
-        "n_dip": "45",
-        "pfn": "750",
-        "fcf": "300"
-    },
-    {
-        "societa": "Theta Industries",
-        "sede": "Via Roma, 1 - Genova",
-        "descrizione": "Costruzioni navali e offshore, specializzata in imbarcazioni da lavoro e piattaforme.",
-        "vdp": "30.000",
-        "ebitda": "6.000",
-        "ebitda_percent": "20%",
-        "n_dip": "150",
-        "pfn": "5.000",
-        "fcf": "800"
-    },
-    {
-        "societa": "Iota Renewables",
-        "sede": "Strada del Sole, 55 - Bari",
-        "descrizione": "Sviluppo e gestione di impianti per la produzione di energia da fonti rinnovabili.",
-        "vdp": "18.000",
-        "ebitda": "7.200",
-        "ebitda_percent": "40%",
-        "n_dip": "80",
-        "pfn": "3.000",
-        "fcf": "1.000"
-    },
-    {
-        "societa": "Kappa Logistics",
-        "sede": "Piazza Duomo, 3 - Palermo",
-        "descrizione": "Servizi di trasporto merci intermodale e gestione magazzini conto terzi su scala nazionale.",
-        "vdp": "11.000",
-        "ebitda": "1.980",
-        "ebitda_percent": "18%",
-        "n_dip": "55",
-        "pfn": "1.500",
-        "fcf": "150"
-    },
-    {
-        "societa": "Lambda Biotech",
-        "sede": "Via della Scienza, 10 - Trieste",
-        "descrizione": "Ricerca e sviluppo nel campo delle biotecnologie applicate alla farmaceutica e agrifood.",
-        "vdp": "25.000",
-        "ebitda": "6.250",
-        "ebitda_percent": "25%",
-        "n_dip": "90",
-        "pfn": "2.500",
-        "fcf": "700"
-    },
-    {
-        "societa": "Mu Digital",
-        "sede": "Corso Vittorio Emanuele, 70 - Cagliari",
-        "descrizione": "Agenzia di marketing digitale specializzata in SEO, SEM e social media strategy per aziende.",
-        "vdp": "5.000",
-        "ebitda": "1.500",
-        "ebitda_percent": "30%",
-        "n_dip": "25",
-        "pfn": "300",
-        "fcf": "100"
-    },
-    {
-        "societa": "Nu Innovations",
-        "sede": "Via dell'Innovazione, 42 - Trento",
-        "descrizione": "Startup focalizzata su soluzioni IoT per smart cities e monitoraggio ambientale.",
-        "vdp": "6.000",
-        "ebitda": "1.200",
-        "ebitda_percent": "20%",
-        "n_dip": "30",
-        "pfn": "400",
-        "fcf": "80"
-    },
-    {
-        "societa": "Xi Holdings",
-        "sede": "Via Finanza, 8 - Milano",
-        "descrizione": "Società di investimento con portafoglio diversificato in vari settori industriali e tecnologici.",
-        "vdp": "50.000",
-        "ebitda": "12.500",
-        "ebitda_percent": "25%",
-        "n_dip": "200",
-        "pfn": "8.000",
-        "fcf": "2.000"
-    },
-    {
-        "societa": "Omicron Services",
-        "sede": "Largo dei Servizi, 15 - Ancona",
-        "descrizione": "Servizi di consulenza aziendale per l'ottimizzazione dei processi e la trasformazione digitale.",
-        "vdp": "13.000",
-        "ebitda": "3.250",
-        "ebitda_percent": "25%",
-        "n_dip": "65",
-        "pfn": "1.100",
-        "fcf": "350"
-    },
-    {
-        "societa": "Pi Manufacturing",
-        "sede": "Zona Industriale Est, Blocco 5 - Perugia",
-        "descrizione": "Produzione di macchinari industriali su misura per il settore metalmeccanico e plastico.",
-        "vdp": "16.000",
-        "ebitda": "3.200",
-        "ebitda_percent": "20%",
-        "n_dip": "70",
-        "pfn": "2.200",
-        "fcf": "450"
-    }
-]
+# --- 1. Definizione percorso e chiavi di estrazione ---
+aziende_target_folder = "AziendeTarget"  # Nome della sottocartella
+excel_files_pattern = os.path.join(aziende_target_folder, "*.xlsx")
 
-competitors_df = pd.DataFrame(data_for_df)
+# Chiavi da cercare nei file Excel (originali, come fornite dall'utente)
+# e la loro mappatura ai nomi standard usati in add_competitor_row
+# Le chiavi del dizionario esterno sono le etichette da cercare (normalizzate in minuscolo)
+# I valori sono i nomi standard delle colonne per il DataFrame finale
+chiavi_excel_mapping = {
+    "descrizione attività italiano": "descrizione", # Modificato per matchare la logica precedente
+    "dipendenti": "n_dip",
+    "ebitda": "ebitda",
+    "ebitda/vendite (%)": "ebitda_percent",
+    "posizione finanziaria netta": "pfn",
+    "a. tot. val. della produzione": "vdp", # Assumendo che questa sia l'etichetta per Valore Produzione
+    "fcf": "fcf",
+    "indirizzo sede legale": "sede" # Aggiunta per la sede, da verificare se presente con questa etichetta
+}
+# Converti le chiavi di ricerca (etichette Excel) in minuscolo per confronto case-insensitive
+chiavi_excel_target_lower = {k.lower().strip(): v for k, v in chiavi_excel_mapping.items()}
 
-prs = Presentation("Competitors.pptx")
+# Lista di tutte le chiavi standard che ci aspettiamo nel dizionario finale per ogni azienda
+# Questo aiuta a garantire che ogni dizionario abbia la stessa struttura.
+standard_keys_final = ["societa", "sede", "descrizione", "vdp", "ebitda", "ebitda_percent", "n_dip", "pfn", "fcf"]
+
+
+# --- 2. Estrazione dati da tutti i file Excel ---
+lista_dati_aziende = []
+
+excel_file_paths = glob.glob(excel_files_pattern) # Trova tutti i file .xlsx nella cartella
+
+if not excel_file_paths:
+    print(f"ATTENZIONE: Nessun file .xlsx trovato nella cartella '{aziende_target_folder}'.")
+    print("Assicurati che la cartella esista e contenga i file Excel.")
+    exit()
+
+print(f"Trovati i seguenti file Excel da processare: {excel_file_paths}")
+
+for file_path in excel_file_paths:
+    print(f"\n--- Processando file: {file_path} ---")
+    try:
+        # Leggi l'intero foglio senza assumere una riga di intestazione specifica
+        # Questo permette di cercare le etichette in qualsiasi riga.
+        df_excel = pd.read_excel(file_path, header=None) 
+        
+        dati_singola_azienda = {} # Dizionario per i dati del file corrente
+
+        # Estrai nome società dal nome del file (rimuovendo l'estensione .xlsx)
+        nome_societa = os.path.splitext(os.path.basename(file_path))[0]
+        dati_singola_azienda["societa"] = nome_societa
+        print(f"  Società (dal nome file): {nome_societa}")
+
+        # Itera sulle righe del DataFrame letto dal file Excel
+        for index, row in df_excel.iterrows():
+            # Cerca le etichette nelle prime due colonne (0 e 1)
+            for col_idx in range(min(2, len(row))): # len(row) per evitare IndexError se ci sono meno di 2 colonne
+                cella_contenuto = row.iloc[col_idx]
+                
+                if isinstance(cella_contenuto, str):
+                    etichetta_cella_lower = cella_contenuto.strip().lower()
+                    
+                    # Se l'etichetta della cella è una di quelle che cerchiamo
+                    if etichetta_cella_lower in chiavi_excel_target_lower:
+                        chiave_standard_associata = chiavi_excel_target_lower[etichetta_cella_lower]
+                        print("etichetta_cella_lower: "+ etichetta_cella_lower)
+                        
+                        # Il valore si trova nella colonna successiva a quella dell'etichetta
+                        if etichetta_cella_lower == "indirizzo sede legale":
+                            # Se l'etichetta è "indirizzo sede legale" devo prende il valrore della cella sotto 
+                            # e non a destra
+                            if index + 1 < len(df_excel):
+                                valore_estratto = df_excel.iloc[index + 1, col_idx]
+                                # Converti in stringa, gestendo valori NaN/None
+                                dati_singola_azienda[chiave_standard_associata] = str(valore_estratto) if pd.notna(valore_estratto) else ""
+                        elif col_idx + 1 < len(row):
+                            valore_estratto = row.iloc[col_idx + 1]
+                            # Converti in stringa, gestendo valori NaN/None
+                            dati_singola_azienda[chiave_standard_associata] = str(valore_estratto) if pd.notna(valore_estratto) else ""
+                            print(f"    Trovato '{cella_contenuto.strip()}' -> Mappato a '{chiave_standard_associata}': '{dati_singola_azienda[chiave_standard_associata]}'")
+                        else:
+                            print(f"    Trovato '{cella_contenuto.strip()}' (mappato a '{chiave_standard_associata}') ma non c'è una colonna successiva per il valore.")
+                            dati_singola_azienda[chiave_standard_associata] = "" # Valore vuoto se non c'è colonna
+        
+        # Assicura che tutte le chiavi standard siano presenti nel dizionario,
+        # aggiungendo quelle mancanti con un valore vuoto.
+        for skey in standard_keys_final:
+            if skey not in dati_singola_azienda:
+                dati_singola_azienda[skey] = "" # Imposta a stringa vuota se non trovato
+                print(f"    Attenzione: Chiave standard '{skey}' non trovata per {nome_societa} durante l'estrazione. Impostata a vuoto.")
+        
+        lista_dati_aziende.append(dati_singola_azienda)
+
+    except FileNotFoundError:
+        print(f"ERRORE: File non trovato {file_path}")
+    except Exception as e:
+        print(f"ERRORE durante il processamento del file {file_path}: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+# --- 3. Creazione DataFrame finale ---
+if not lista_dati_aziende:
+    print("\nNessun dato aziendale è stato estratto. Impossibile procedere con la creazione delle slide.")
+    exit()
+
+competitors_df = pd.DataFrame(lista_dati_aziende)
+# Riordina le colonne secondo standard_keys_final se necessario, anche se DataFrame(lista_di_dict)
+# tende a mantenere l'ordine delle chiavi del primo dizionario se tutte le chiavi sono presenti.
+# Per sicurezza, puoi riordinare:
+competitors_df = competitors_df[standard_keys_final]
+
+
+print("\n--- DataFrame finale costruito ---")
+print(competitors_df.head())
+
+
+# --- 4. Creazione delle slide ---
+print("\n--- Inizio creazione slide PowerPoint ---")
+try:
+    prs = Presentation("Competitors.pptx") # Assicurati che questo file esista e abbia almeno 2 slide
+except Exception as e:
+    print(f"Errore nell'apertura del file 'Competitors.pptx': {e}")
+    print("Assicurati che il file esista nella stessa cartella dello script e non sia corrotto.")
+    exit()
+
+
+if len(prs.slides) < 2:
+    print("ERRORE: La presentazione 'Competitors.pptx' deve avere almeno due slide.")
+    print("La seconda slide (indice 1) viene usata come modello per layout e forme fisse.")
+    exit()
 
 model_slide_layout = prs.slides[1].slide_layout
-current_slide = prs.slides[1]
-#duplicated_slide = utils.duplicate_slide(prs, 1)
+# La prima slide di output sarà la seconda slide esistente (indice 1)
+current_slide = prs.slides[1] 
+# Se la slide modello (prs.slides[1]) ha già le intestazioni (aggiunte da add_shapes),
+# non è necessario richiamare utils.add_shapes() per questa prima slide.
+# Se invece è una slide "pulita" e vuoi le intestazioni, decommenta la riga sotto.
+# utils.add_shapes(current_slide) 
 
-offset_per_riga_emu = 763200
-items_per_slide = 6
+offset_per_riga_emu = 763200 
+items_per_slide = 6 
 rows_written_on_current_slide = 0
+
+print(f"Trovate {len(competitors_df)} aziende nel DataFrame da inserire nella presentazione.")
 
 if not competitors_df.empty:
     for index, competitor_data_dict in enumerate(competitors_df.to_dict(orient='records')):
+        # Crea una nuova slide se necessario (dopo la prima e ogni items_per_slide)
         if index > 0 and index % items_per_slide == 0:
+            print(f"--- Creazione nuova slide per azienda indice {index} ({competitor_data_dict.get('societa', 'N/A')}) ---")
             current_slide = prs.slides.add_slide(model_slide_layout)
             rows_written_on_current_slide = 0
-            utils.add_shapes(current_slide)
+            utils.add_shapes(current_slide) # Aggiungi le forme fisse (intestazioni, linee) alla nuova slide
 
         current_y_offset = rows_written_on_current_slide * offset_per_riga_emu
         
+        print(f"  Aggiungo riga {rows_written_on_current_slide + 1} alla slide corrente per: {competitor_data_dict.get('societa', 'N/A')}")
         utils.add_competitor_row(current_slide, competitor_data_dict, y_offset=current_y_offset)
         
         rows_written_on_current_slide += 1
 else:
-    print("Il DataFrame è vuoto. Nessuna riga da aggiungere.")
+    print("Il DataFrame è vuoto. Nessuna riga da aggiungere alla presentazione.")
 
-prs.save("Competitors_modificato_pandas.pptx")
+try:
+    prs.save("Competitors_modificato_pandas.pptx")
+    print("\nPresentazione salvata con successo come 'Competitors_modificato_pandas.pptx'")
+except Exception as e:
+    print(f"ERRORE durante il salvataggio della presentazione: {e}")
+
